@@ -1,19 +1,19 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/lib/hooks'
 import { addFriend, setActiveDM, setSearchResults } from '@/lib/slices/chatSlice'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Search, UserPlus, MessageCircle, Phone, Video } from 'lucide-react'
-import { axiosSecure } from '@/hooks/axiosHooks'
 import { setActiveView } from '@/lib/slices/uiSlice'
+import useAxiosInstance from '@/hooks/axiosHooks'
 
 export const SearchComponent = () => {
   const dispatch = useAppDispatch()
   const { searchResults } = useAppSelector(state => state.chat)
+  const { axiosSecure } = useAxiosInstance()
   const [query, setQuery] = useState('')
 
   const chatInitFromUI = (user: {id: string, username: string, email: string}) => {

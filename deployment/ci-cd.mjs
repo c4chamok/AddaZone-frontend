@@ -48,6 +48,7 @@ const zipProject = async () => {
     archive.pipe(output);
 
     archive.glob('**/*', {
+      dot: true,
       ignore: ['node_modules/**', 'dist/**', 'generated/**', '.git/**', CONFIG.zipFileName],
     });
 

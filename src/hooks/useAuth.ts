@@ -1,15 +1,14 @@
 import { setLoading, setUser, setError, setAuthStatus, logout } from '@/lib/slices/authSlice'
-import { axiosSecure } from '@/hooks/axiosHooks'
-// import { useState } from 'react';
 import { useAppDispatch } from '@/lib/hooks';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
-// import { AxiosError } from 'axios';
+import useAxiosInstance from './axiosHooks';
 
 
 const useAuth = () => {
 
     const dispatch = useAppDispatch();
+    const { axiosSecure } = useAxiosInstance()
     // const { isAuthenticated } = useAppSelector(state=>state.auth);
 
     const userLogin = async (email: string, password: string) => {
@@ -46,11 +45,11 @@ const useAuth = () => {
             if (data?.success) {
                 console.log(data);
                 dispatch(setUser(data))
+                dispatch(setAuthStatus({ isAuthenticated: true }));
             }
-            dispatch(setAuthStatus({ isAuthenticated: true }));
         } catch (err: unknown) {
             if (err instanceof AxiosError) {
-
+                dispatch(setAuthStatus({ isAuthenticated: false }));
                 dispatch(setError({ message: err.message, code: err.code, status: err.status }));
             }
         } finally {
