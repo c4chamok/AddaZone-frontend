@@ -1,19 +1,19 @@
 
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
-interface Message {
-  id: string
+export interface Message {
+  id?: string
   content: string
-  senderId: string
-  senderName: string
-  timestamp: Date
-  type: 'text' | 'image' | 'file' | 'voice'
-  reactions?: { emoji: string; users: string[] }[]
-  edited?: boolean
-  replyTo?: string
+  chatId: string
+  // senderName: string
+  // timestamp: Date
+  // type: 'text' | 'image' | 'file' | 'voice'
+  // reactions?: { emoji: string; users: string[] }[]
+  // edited?: boolean
+  // replyTo?: string
 }
 
-interface Channel {
+export interface Channel {
   id: string
   name: string
   type: 'text' | 'voice' | 'video'
@@ -31,12 +31,23 @@ interface Server {
   isOwner: boolean
 }
 
-interface DirectMessage {
+export interface conversation {
   id: string
-  participants: string[]
+  participants: IChatParticipants[]
   messages: Message[]
-  lastMessage?: Message
-  unreadCount: number
+  // lastMessage?: Message
+  // unreadCount?: number
+  name?: string
+  type: 'GROUP' | 'DM' | 'CHANNEL'
+  details?: Channel | Group | null
+}
+
+interface IChatParticipants {
+  id: string
+  chatId: string
+  userId: string
+  role: 'MEMBER' | 'MODERATOR' | 'ADMIN'
+  user: Friend
 }
 
 export interface Friend {
@@ -49,9 +60,10 @@ export interface Friend {
   status?: 'online' | 'offline' | 'away' | 'busy'
   isBlocked?: boolean
   lastSeen?: Date
+  existingChatId?: string
 }
 
-interface Group {
+export interface Group {
   id: string
   name: string
   description?: string
@@ -78,7 +90,7 @@ interface FeedPost {
 
 interface ChatState {
   servers: Server[]
-  directMessages: DirectMessage[]
+  conversations: conversation[]
   friends: Friend[]
   groups: Group[]
   feedPosts: FeedPost[]
@@ -97,7 +109,7 @@ interface ChatState {
 
 const initialState: ChatState = {
   servers: [],
-  directMessages: [],
+  conversations: [],
   friends: [],
   groups: [],
   feedPosts: [],
@@ -121,17 +133,15 @@ const chatSlice = createSlice({
     setServers: (state, action: PayloadAction<Server[]>) => {
       state.servers = action.payload
     },
-    addMessage: (state, action: PayloadAction<{ channelId: string; message: Message }>) => {
-      const { channelId, message } = action.payload
-      const server = state.servers.find(s => 
-        s.channels.some(c => c.id === channelId)
-      )
-      if (server) {
-        const channel = server.channels.find(c => c.id === channelId)
-        if (channel) {
-          channel.messages.push(message)
-        }
-      }
+    addMessage: (state, action: PayloadAction<Message>) => {
+      const { content, id, chatId } = action.payload
+      const convo = state.conversations.find(convo => convo.id === chatId);
+      convo?.messages.push({ id, content, chatId })
+    },
+    addConversation: (state, action: PayloadAction<conversation>) => {
+      const existingConv = state.conversations.find(convo => convo.id === action.payload.id);
+      if (existingConv) return;
+      state.conversations.push(action.payload);
     },
     setActiveChannel: (state, action: PayloadAction<{ serverId: string; channelId: string }>) => {
       state.activeServerId = action.payload.serverId
@@ -179,11 +189,12 @@ const chatSlice = createSlice({
   },
 })
 
-export const { 
-  setServers, 
-  addMessage, 
-  setActiveChannel, 
-  setActiveDM, 
+export const {
+  setServers,
+  addMessage,
+  addConversation,
+  setActiveChannel,
+  setActiveDM,
   setTypingUsers,
   setNearbyUsers,
   setFriends,

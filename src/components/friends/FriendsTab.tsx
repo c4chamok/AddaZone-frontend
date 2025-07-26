@@ -3,38 +3,16 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Users, MessageCircle, Phone, Video } from 'lucide-react'
-import type { Friend } from '@/lib/slices/chatSlice'
+import { setActiveDM, type Friend } from '@/lib/slices/chatSlice'
+import { useDispatch } from 'react-redux'
+import { setActiveView } from '@/lib/slices/uiSlice'
 
 export const FriendsTab = () => {
-  const { friends } = useAppSelector(state => state.chat)
-
-  // Mock friends data
-  // React.useEffect(() => {
-  //   if (friends.length === 0) {
-  //     dispatch(setFriends([
-  //       {
-  //         id: '1',
-  //         username: 'alice_wonder',
-  //         name: 'Alice Wonder',
-  //         email: 'alice@example.com',
-  //         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice',
-  //         status: 'online',
-  //         isBlocked: false,
-  //         lastSeen: new Date()
-  //       },
-  //       {
-  //         id: '2',
-  //         username: 'bob_builder',
-  //         name: 'Bob Builder',
-  //         email: 'bob@example.com',
-  //         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
-  //         status: 'away',
-  //         isBlocked: false,
-  //         lastSeen: new Date(Date.now() - 3600000)
-  //       }
-  //     ]))
-  //   }
-  // }, [friends.length, dispatch])
+  const { conversations, activeDMId } = useAppSelector(state => state.chat)
+  const { activeView,  } = useAppSelector(state => state.ui)
+  
+  // const { friends } = useAppSelector(state => state.chat)
+  console.log(activeDMId, activeView);
 
 
   return (
@@ -49,24 +27,24 @@ export const FriendsTab = () => {
         </div>
 
         <Tabs defaultValue="online" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="online">Online</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3" defaultValue={'all'}>
+            {/* <TabsTrigger value="online">Online</TabsTrigger> */}
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="pending">Pending</TabsTrigger>
             <TabsTrigger value="blocked">Blocked</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="online" className="space-y-2 mt-4">
-            {friends
-              .filter(friend => friend.status === 'online')
-              .map(friend => (
-                <FriendCard key={friend.id} friend={friend} />
+          {/* <TabsContent value="online" className="space-y-2 mt-4">
+            {conversations
+              .filter(convo => convo.participants[0].status === 'online')
+              .map(convo => (
+                <FriendCard key={convo.chatId} friend={convo.participants[0]} />
               ))}
-          </TabsContent>
+          </TabsContent> */}
 
           <TabsContent value="all" className="space-y-2 mt-4">
-            {friends.map(friend => (
-              <FriendCard key={friend.id} friend={friend} />
+            {conversations.map(convo => (
+              <FriendCard key={convo.id} friend={convo.participants[0].user} chatId={convo.id} />
             ))}
           </TabsContent>
 
@@ -87,7 +65,9 @@ export const FriendsTab = () => {
   )
 }
 
-const FriendCard = ({ friend }: { friend: Friend }) => {
+const FriendCard = ({ friend, chatId }: { friend: Friend, chatId: string }) => {
+  console.log(chatId);
+  const dispatch = useDispatch();
   return (
     <div className="flex items-center justify-between p-3 hover:bg-muted rounded-lg">
       <div className="flex items-center space-x-3">
@@ -104,7 +84,10 @@ const FriendCard = ({ friend }: { friend: Friend }) => {
         </Badge> */}
       </div>
       <div className="flex space-x-2">
-        <Button size="sm" variant="outline">
+        <Button size="sm" variant="outline" onClick={()=>{
+            dispatch(setActiveDM(chatId));
+            dispatch(setActiveView('friends'));
+          }}>
           <MessageCircle className="h-4 w-4" />
         </Button>
         <Button size="sm" variant="outline">

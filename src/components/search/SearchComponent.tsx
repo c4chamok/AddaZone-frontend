@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/lib/hooks'
-import { addFriend, setActiveDM, setSearchResults } from '@/lib/slices/chatSlice'
+import { addConversation, setActiveDM, setSearchResults, type conversation, type Friend } from '@/lib/slices/chatSlice'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
@@ -16,9 +16,19 @@ export const SearchComponent = () => {
   const { axiosSecure } = useAxiosInstance()
   const [query, setQuery] = useState('')
 
-  const chatInitFromUI = (user: {id: string, username: string, email: string}) => {
-    dispatch(addFriend(user))
-    dispatch(setActiveDM(user.id))
+  const chatInitialize = async (user: Friend) => {
+    if (user.existingChatId) {
+      const { data } = (await axiosSecure.get(`/chat?chatId=${user.existingChatId}`)) as { data: {chatInstance: conversation} }
+      console.log(data);
+      dispatch(addConversation(data.chatInstance))
+      dispatch(setActiveDM(user.existingChatId))
+      dispatch(setActiveView('friends'))
+      return;
+    }
+    const { data } = (await axiosSecure.post('/chat/initiate-dm', { toUserId: user.id })) as { data: {chatInstance: conversation} }
+    console.log(data);
+    dispatch(addConversation(data.chatInstance))
+    dispatch(setActiveDM(data.chatInstance.id))
     dispatch(setActiveView('friends'))
   }
 
@@ -26,11 +36,11 @@ export const SearchComponent = () => {
     if (!query.trim()) return
 
     // Mock search results - replace with real API call
-    const { data, statusText } = await axiosSecure(`/users/find?userName=${query}`);
+    const { data, statusText } = (await axiosSecure.get(`/users/search?userName=${query}`));
     console.log(data);
 
     if (!data?.success || data.users.length) {
-      console.error('could not fetch users', statusText );
+      console.error('could not fetch users', statusText);
     }
     // const mockUsers = [
     //   {
@@ -108,7 +118,7 @@ export const SearchComponent = () => {
                     <Button size="sm" variant="outline">
                       <UserPlus className="h-4 w-4" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={()=>chatInitFromUI(user)}>
+                    <Button size="sm" variant="outline" onClick={() => chatInitialize(user)}>
                       <MessageCircle className="h-4 w-4" />
                     </Button>
                     <Button size="sm" variant="outline">

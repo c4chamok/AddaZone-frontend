@@ -122,9 +122,12 @@ export const LoginPage = () => {
           <div className="mt-6 p-4 bg-gray-800 rounded-lg">
             <div className="text-sm text-gray-300 mb-2">Demo Credentials:</div>
             <div className="text-xs text-gray-400 space-y-1">
-              <div>alice@example.com / password123</div>
-              <div>bob@example.com / password123</div>
-              <div>charlie@example.com / password123</div>
+              <div>user1@adda.com / 123456</div>
+              <div>user2@adda.com / 123456</div>
+              <div>user3@adda.com / 123456</div>
+              <div>user4@adda.com / 123456</div>
+              <div>user5@adda.com / 123456</div>
+              <div>user6@adda.com / 123456</div>              
             </div>
           </div>
         </CardContent>
