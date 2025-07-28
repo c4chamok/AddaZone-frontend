@@ -1,6 +1,6 @@
 import { setLoading, setUser, setError, setAuthStatus, logout } from '@/lib/slices/authSlice'
 import { useAppDispatch } from '@/lib/hooks';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import useAxiosInstance from './axiosHooks';
 

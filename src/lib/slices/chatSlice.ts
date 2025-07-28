@@ -5,6 +5,7 @@ export interface Message {
   id?: string
   content: string
   chatId: string
+  senderId: string
   // senderName: string
   // timestamp: Date
   // type: 'text' | 'image' | 'file' | 'voice'

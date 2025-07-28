@@ -1,6 +1,7 @@
-import { FriendsTab } from '../friends/FriendsTab'
+// import { FriendsTab } from '../friends/FriendsTab'
 import { GroupsTab } from '../groups/GroupsTab'
 import { ChannelsTab } from '../channels/ChannelsTab'
+import ChatSidebar from '../SidebarTabs/ChatSidebar'
 
 interface SecondarySidebarProps {
   activeView: string
@@ -12,7 +13,7 @@ export const SecondarySidebar = ({ activeView }: SecondarySidebarProps) => {
   const renderContent = () => {
     switch (activeView) {
       case 'friends':
-        return <FriendsTab/>
+        return <ChatSidebar/>
       case 'groups':
         return <GroupsTab/>
       case 'channels':
