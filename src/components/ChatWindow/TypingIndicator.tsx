@@ -1,16 +1,15 @@
-
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store/store';
-import { User } from '@/store/chatSlice';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { useAppSelector } from '@/lib/hooks';
+import type { Friend } from '@/lib/slices/chatSlice';
 
 interface TypingIndicatorProps {
-  user: User;
+  user: Friend;
 }
 
 const TypingIndicator = ({ user }: TypingIndicatorProps) => {
-  const { isDark } = useSelector((state: RootState) => state.theme);
+  const { theme } = useAppSelector(state => state.ui);
+  const isDark = theme === 'dark';
 
   return (
     <div className="flex gap-2 items-end animate-fade-in">
@@ -20,10 +19,10 @@ const TypingIndicator = ({ user }: TypingIndicatorProps) => {
           "text-xs transition-colors duration-300",
           isDark ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"
         )}>
-          {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+          {user.username.split(' ').map(n => n[0]).join('').toUpperCase()}
         </AvatarFallback>
       </Avatar>
-      
+
       <div className={cn(
         "px-4 py-3 rounded-2xl rounded-bl-md transition-colors duration-300",
         isDark ? "bg-gray-700" : "bg-gray-200"

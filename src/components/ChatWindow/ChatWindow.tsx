@@ -17,26 +17,28 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import MessageBubble from './MessageBubble';
-// import TypingIndicator from './TypingIndicator';
+import TypingIndicator from './TypingIndicator';
 import { useAppSelector } from '@/lib/hooks';
 import { addMessage } from '@/lib/slices/chatSlice';
 import useAxiosInstance from '@/hooks/axiosHooks';
+import { useSocket } from '@/lib/socket';
 
 const ChatWindow = () => {
   const dispatch = useDispatch();
-  const { conversations, activeDMId } = useAppSelector(state => state.chat);
+  const { conversations, activeDMId, onlineConvoIds, typingUsers } = useAppSelector(state => state.chat);
   const { user } = useAppSelector(state => state.auth);
   const { axiosSecure } = useAxiosInstance();
   const { theme } = useAppSelector(state => state.ui);
   const isDark = theme === 'dark';
   const [message, setMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  // const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const chatSocket  = useSocket();
 
   const currentChat = conversations.find(c => c.id === activeDMId);
   const otherUser = currentChat?.participants.find(p => p.id !== user?.id);
   // console.log(conversations[]);
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -59,45 +61,16 @@ const ChatWindow = () => {
     console.log(data);
     dispatch(addMessage({ chatId: currentChat?.id, content: message, senderId: user?.id }));
     setMessage('');
-    handleStopTyping();
+    // handleStopTyping();
   }
 
 
   const handleTyping = (value: string) => {
     setMessage(value);
-
-    if (!isTyping && value.trim()) {
-      setIsTyping(true);
-      // dispatch(setTyping({
-      //   chatId: activeDMId,
-      //   userId: user?.id,
-      //   isTyping: true
-      // }));
+    if (value.trim()) {
+      chatSocket.emit('typing', { chatId: currentChat?.id });
     }
 
-    // Clear existing timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-
-    // Set new timeout
-    typingTimeoutRef.current = setTimeout(() => {
-      handleStopTyping();
-    }, 2000);
-  };
-
-  const handleStopTyping = () => {
-    if (isTyping) {
-      setIsTyping(false);
-      // dispatch(setTyping({
-      //   chatId: activeDMId,
-      //   userId: user?.id,
-      //   isTyping: false
-      // }));
-    }
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
   };
 
   // const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -158,9 +131,9 @@ const ChatWindow = () => {
                 {otherUser.user.username.split(' ').map(n => n[0]).join('').toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            {/* {otherUser.isOnline && ( */}
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
-            {/* )} */}
+            {onlineConvoIds.includes(currentChat.id) && (
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
+            )}
           </div>
           <div>
             <h2 className={cn(
@@ -218,21 +191,22 @@ const ChatWindow = () => {
           {currentChat.messages.map((msg, index) => {
             console.log(msg.senderId, user.id);
             return (
-            <MessageBubble
-              key={msg.id}
-              message={msg}
-              isOwn={msg.senderId === user?.id}
-              showAvatar={
-                index === 0 ||
-                currentChat.messages[index - 1].senderId !== msg.senderId
-              }
-              user={msg.senderId === user?.id ? user : otherUser.user}
-            />
-          )})}
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                isOwn={msg.senderId === user?.id}
+                showAvatar={
+                  index === 0 ||
+                  currentChat.messages[index - 1].senderId !== msg.senderId
+                }
+                user={msg.senderId === user?.id ? user : otherUser.user}
+              />
+            )
+          })}
 
-          {/* {currentChat.isTyping && currentChat.typingUsers.some(id => id !== currentUser.id) && (
-            <TypingIndicator user={otherUser} />
-          )} */}
+          {typingUsers[currentChat.id] && typingUsers[currentChat.id].includes(otherUser.userId) && (
+            <TypingIndicator user={otherUser.user} />
+          )}
 
           <div ref={messagesEndRef} />
         </div>

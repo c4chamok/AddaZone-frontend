@@ -94,6 +94,7 @@ interface ChatState {
   servers: Server[]
   conversations: conversation[]
   onlineConvoIds: string[]
+  // typingUserIds: string[]
   friends: Friend[]
   groups: Group[]
   feedPosts: FeedPost[]
@@ -156,6 +157,9 @@ const chatSlice = createSlice({
     removeOnlineConvos: (state, action: PayloadAction<string[]>) => {
       state.onlineConvoIds = state.onlineConvoIds.filter(id => !action.payload.includes(id));
     },
+    setTypingUsers: (state, action: PayloadAction<{ chatId: string; users: string[] }>) => {
+      state.typingUsers[action.payload.chatId] = action.payload.users;
+    },
     setActiveChannel: (state, action: PayloadAction<{ serverId: string; channelId: string }>) => {
       state.activeServerId = action.payload.serverId
       state.activeChannelId = action.payload.channelId
@@ -165,9 +169,6 @@ const chatSlice = createSlice({
       state.activeDMId = action.payload
       state.activeServerId = null
       state.activeChannelId = null
-    },
-    setTypingUsers: (state, action: PayloadAction<{ channelId: string; users: string[] }>) => {
-      state.typingUsers[action.payload.channelId] = action.payload.users
     },
     setNearbyUsers: (state, action: PayloadAction<any[]>) => {
       state.nearbyUsers = action.payload
