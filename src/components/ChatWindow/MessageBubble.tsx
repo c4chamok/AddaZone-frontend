@@ -16,6 +16,7 @@ const MessageBubble = ({ message, isOwn, showAvatar, user }: MessageBubbleProps)
     // const { theme } = useAppSelector(state => state.ui);
     const { theme } = useAppSelector(state => state.ui);
     const isDark = theme === 'dark';
+    console.log(isOwn);
 
   // const formatTime = (date: Date) => {
   //   return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

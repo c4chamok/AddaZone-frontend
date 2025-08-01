@@ -4,42 +4,15 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 // import { Badge } from '@/components/ui/badge'
 import { Phone, Video, MoreVertical, Search, Paperclip, Smile, Send } from 'lucide-react'
-import React, { useState } from 'react'
-import useAxiosInstance from '@/hooks/axiosHooks'
-import { addMessage, type Message } from '@/lib/slices/chatSlice'
-import { useDispatch } from 'react-redux'
 import ChatWindow from '../ChatWindow/ChatWindow'
 
-interface Imessage {
-  messageText: string;
-}
 
 export const MainContent = () => {
-  const dispatch = useDispatch();
   const { friends, groups, servers, activeDMId, activeGroupId, activeChannelId, activeServerId, conversations } = useAppSelector(state => state.chat)
   const { activeView } = useAppSelector(state => state.ui)
-  const { user } = useAppSelector(state => state.auth);
   console.log(friends, groups, servers, activeDMId, activeGroupId, activeChannelId, activeServerId);
-  const { axiosSecure } = useAxiosInstance();
 
   const conversation = conversations.find(convo => convo.id == activeDMId);
-  console.log(conversation);
-  const [inputMessage, setInputMessage] = useState<Imessage>({
-    messageText: ''
-  })
-
-  if (!conversation || !user) return null
-
-  const handleSendMessage= async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const { data } = (await axiosSecure.post('chat/send-message', { toUserId: conversation?.participants[0].userId, message: inputMessage.messageText, chatId: conversation.id })) as {
-      data: {
-        success: boolean; chatId: string, id: string, content: string
-      }
-    };
-    console.log(data);
-    dispatch(addMessage({ chatId: conversation.id, content: inputMessage.messageText, senderId: user?.id }));
-  }
 
   const getActiveContent = () => {
     if (activeDMId) {

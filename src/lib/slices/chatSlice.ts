@@ -34,16 +34,17 @@ interface Server {
 
 export interface conversation {
   id: string
-  participants: IChatParticipants[]
+  participants: IChatParticipant[]
   messages: Message[]
   // lastMessage?: Message
   // unreadCount?: number
   name?: string
   type: 'GROUP' | 'DM' | 'CHANNEL'
   details?: Channel | Group | null
+  status?: 'online' | 'offline' | 'away' | 'busy'
 }
 
-interface IChatParticipants {
+interface IChatParticipant {
   id: string
   chatId: string
   userId: string
@@ -92,6 +93,7 @@ interface FeedPost {
 interface ChatState {
   servers: Server[]
   conversations: conversation[]
+  onlineConvoIds: string[]
   friends: Friend[]
   groups: Group[]
   feedPosts: FeedPost[]
@@ -111,6 +113,7 @@ interface ChatState {
 const initialState: ChatState = {
   servers: [],
   conversations: [],
+  onlineConvoIds: [],
   friends: [],
   groups: [],
   feedPosts: [],
@@ -137,12 +140,21 @@ const chatSlice = createSlice({
     addMessage: (state, action: PayloadAction<Message>) => {
       const { content, id, chatId } = action.payload
       const convo = state.conversations.find(convo => convo.id === chatId);
-      convo?.messages.push({ id, content, chatId })
+      convo?.messages.push({ id, content, chatId, senderId: action.payload.senderId });
     },
     addConversation: (state, action: PayloadAction<conversation>) => {
       const existingConv = state.conversations.find(convo => convo.id === action.payload.id);
       if (existingConv) return;
       state.conversations.push(action.payload);
+    },
+    setConversations: (state, action: PayloadAction<conversation[]>) => {
+      state.conversations.push(...action.payload);
+    },
+    addOnlineConvos: (state, action: PayloadAction<string[]>) => {
+      state.onlineConvoIds.push(...action.payload);
+    },
+    removeOnlineConvos: (state, action: PayloadAction<string[]>) => {
+      state.onlineConvoIds = state.onlineConvoIds.filter(id => !action.payload.includes(id));
     },
     setActiveChannel: (state, action: PayloadAction<{ serverId: string; channelId: string }>) => {
       state.activeServerId = action.payload.serverId
@@ -194,6 +206,9 @@ export const {
   setServers,
   addMessage,
   addConversation,
+  setConversations,
+  addOnlineConvos,
+  removeOnlineConvos,
   setActiveChannel,
   setActiveDM,
   setTypingUsers,

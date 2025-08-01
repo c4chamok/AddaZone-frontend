@@ -18,7 +18,7 @@ export const SearchComponent = () => {
 
   const chatInitialize = async (user: Friend) => {
     if (user.existingChatId) {
-      const { data } = (await axiosSecure.get(`/chat?chatId=${user.existingChatId}`)) as { data: {chatInstance: conversation} }
+      const { data } = (await axiosSecure.get(`/chat/${user.existingChatId}`)) as { data: {chatInstance: conversation} }
       console.log(data);
       dispatch(addConversation(data.chatInstance))
       dispatch(setActiveDM(user.existingChatId))

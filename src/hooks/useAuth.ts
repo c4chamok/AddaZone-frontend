@@ -1,4 +1,4 @@
-import { setLoading, setUser, setError, setAuthStatus, logout } from '@/lib/slices/authSlice'
+import { setLoading, setUser, setError, setAuthStatus, logout, type User } from '@/lib/slices/authSlice'
 import { useAppDispatch } from '@/lib/hooks';
 import { AxiosError } from 'axios';
 import { toast } from 'sonner';
@@ -41,11 +41,11 @@ const useAuth = () => {
 
         try {
             // await axios.get('http://localhost:3000/log-cookies', { withCredentials: true });
-            const { data } = await axiosSecure.get('/users/me');
+            const { data } = await axiosSecure.get('/users/me') as { data: { success: boolean, user: User } };
             console.log('calling');
             if (data?.success) {
                 console.log(data);
-                dispatch(setUser(data))
+                dispatch(setUser(data.user))
                 dispatch(setAuthStatus({ isAuthenticated: true }));
             }
         } catch (err: unknown) {

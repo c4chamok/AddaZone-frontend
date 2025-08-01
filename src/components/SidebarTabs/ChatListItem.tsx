@@ -11,7 +11,7 @@ interface ChatListItemProps {
 }
 
 const ChatListItem = ({ chat, onClick }: ChatListItemProps) => {
-  const { activeDMId } = useAppSelector(state => state.chat);
+  const { activeDMId, onlineConvoIds } = useAppSelector(state => state.chat);
   const { user } = useAppSelector(state => state.auth);
   const { theme } = useAppSelector(state => state.ui);
   const isDark = theme === 'dark';
@@ -57,7 +57,7 @@ const ChatListItem = ({ chat, onClick }: ChatListItemProps) => {
             {otherUser?.user.username.split(' ').map(n => n[0]).join('').toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        {otherUser?.user.status === 'online' && (
+        {onlineConvoIds.includes(chat.id) && (
           <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full animate-pulse" />
         )}
       </div>

@@ -22,15 +22,33 @@ import { cn } from '@/lib/utils';
 import ChatListItem from './ChatListItem';
 import LoadingSkeleton from './LoadingSkeleton';
 import { useAppSelector } from '@/lib/hooks';
-import { setActiveDM } from '@/lib/slices/chatSlice';
+import { setActiveDM, setConversations, type conversation } from '@/lib/slices/chatSlice';
+import { useEffect } from 'react';
+import useAxiosInstance from '@/hooks/axiosHooks';
 
 const ChatSidebar = () => {
   const dispatch = useDispatch();
   const { conversations, } = useAppSelector(state => state.chat);
+  const { axiosSecure } = useAxiosInstance();
   const isLoading = false
   // const { user } = useAppSelector(state => state.auth);
   const { theme } = useAppSelector(state => state.ui);
   const isDark = theme === 'dark';
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const { data } = (await axiosSecure.get('/chat')) as { data: { conversations: conversation[] } };
+        console.log(data);
+        dispatch(setConversations(data.conversations));
+      } catch (error) {
+        console.error('Failed to fetch conversations:', error);
+      }
+    }
+    fetchConversations();
+  }, [dispatch, axiosSecure]); 
+
+  console.log(conversations);
   // const [activeTab, setActiveTab] = useState<'all' | 'unread' | 'groups' | 'communities'>('all');
 
   // const filteredChats = conversations.filter(chat => {
@@ -159,9 +177,9 @@ const ChatSidebar = () => {
             <LoadingSkeleton count={5} />
           ) : (
             <div className="space-y-1">
-              {conversations.map((chat) => (
+              {conversations.map((chat, ) => (
                 <ChatListItem
-                  key={chat.id}
+                  key={chat?.id}
                   chat={chat}
                   onClick={() => dispatch(setActiveDM(chat.id))}
                 />
