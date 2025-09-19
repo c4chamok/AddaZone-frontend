@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -122,12 +122,12 @@ export const LoginPage = () => {
           <div className="mt-6 p-4 bg-gray-800 rounded-lg">
             <div className="text-sm text-gray-300 mb-2">Demo Credentials:</div>
             <div className="text-xs text-gray-400 space-y-1">
-              <div>user1@adda.com / 123456</div>
-              <div>user2@adda.com / 123456</div>
-              <div>user3@adda.com / 123456</div>
-              <div>user4@adda.com / 123456</div>
-              <div>user5@adda.com / 123456</div>
-              <div>user6@adda.com / 123456</div>              
+              <div className='hover:underline cursor-pointer' onClick={()=>setCredentials({ email: 'user1@adda.com', password: '123456' })}>user1@adda.com / 123456</div>
+              <div className='hover:underline cursor-pointer' onClick={()=>setCredentials({ email: 'user2@adda.com', password: '123456' })}>user2@adda.com / 123456</div>
+              <div className='hover:underline cursor-pointer' onClick={()=>setCredentials({ email: 'user3@adda.com', password: '123456' })}>user3@adda.com / 123456</div>
+              <div className='hover:underline cursor-pointer' onClick={()=>setCredentials({ email: 'user4@adda.com', password: '123456' })}>user4@adda.com / 123456</div>
+              <div className='hover:underline cursor-pointer' onClick={()=>setCredentials({ email: 'user5@adda.com', password: '123456' })}>user5@adda.com / 123456</div>
+              <div className='hover:underline cursor-pointer' onClick={()=>setCredentials({ email: 'user6@adda.com', password: '123456' })}>user6@adda.com / 123456</div>              
             </div>
           </div>
         </CardContent>

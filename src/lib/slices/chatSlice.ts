@@ -77,7 +77,7 @@ export interface Group {
   messages: Message[]
 }
 
-interface FeedPost {
+export interface FeedPost {
   id: string
   authorId: string
   authorName: string

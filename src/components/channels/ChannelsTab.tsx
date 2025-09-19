@@ -3,11 +3,11 @@ import { useAppSelector, useAppDispatch } from '@/lib/hooks'
 import { setServers, setActiveChannel } from '@/lib/slices/chatSlice'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+// import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+// import { Textarea } from '@/components/ui/textarea'
 import { Hash, Plus, Users, Volume2, Video, Globe } from 'lucide-react'
 
 export const ChannelsTab = () => {

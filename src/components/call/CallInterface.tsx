@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/lib/hooks'
 import { endCall } from '@/lib/slices/uiSlice'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Phone, 
+import {  
   PhoneOff, 
   Mic, 
   MicOff, 
@@ -20,7 +19,7 @@ import {
 
 export const CallInterface = () => {
   const dispatch = useAppDispatch()
-  const { callType, callParticipants } = useAppSelector(state => state.ui)
+  const { callType } = useAppSelector(state => state.ui)
   const [isMuted, setIsMuted] = useState(false)
   const [isVideoOn, setIsVideoOn] = useState(callType === 'video')
   const [isScreenSharing, setIsScreenSharing] = useState(false)

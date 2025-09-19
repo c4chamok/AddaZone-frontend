@@ -1,9 +1,7 @@
-
-import React from 'react'
 import { useAppSelector } from '@/lib/hooks'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+// import { Badge } from '@/components/ui/badge'
 import { Crown, Shield } from 'lucide-react'
 
 export const MemberList = () => {
@@ -45,6 +43,7 @@ export const MemberList = () => {
       role: 'member',
     },
   ]
+  type Members = typeof members
 
   const onlineMembers = members.filter(m => m.status === 'online')
   const offlineMembers = members.filter(m => m.status === 'offline')
@@ -66,7 +65,7 @@ export const MemberList = () => {
     return null
   }
 
-  const MemberSection = ({ title, members, count }: { title: string; members: any[]; count: number }) => (
+  const MemberSection = ({ title, members, count }: { title: string; members: Members; count: number }) => (
     <div className="mb-4">
       <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wide">
         {title} — {count}

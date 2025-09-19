@@ -1,16 +1,16 @@
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/lib/hooks'
 import { setNearbyUsers } from '@/lib/slices/chatSlice'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+// import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Slider } from '@/components/ui/slider'
-import { MapPin, MessageCircle, UserPlus, List, Map, Filter, Eye, EyeOff } from 'lucide-react'
+import { MapPin, MessageCircle, UserPlus, List, Map, Eye, EyeOff } from 'lucide-react'
 
 export const NearbyTab = () => {
   const dispatch = useAppDispatch()
@@ -67,17 +67,17 @@ export const NearbyTab = () => {
     dispatch(setNearbyUsers(mockNearbyUsers))
   }, [dispatch])
 
-  const StatusIndicator = ({ status }: { status: string }) => {
-    const colors = {
-      online: 'bg-green-500',
-      away: 'bg-yellow-500',
-      busy: 'bg-red-500',
-      offline: 'bg-gray-500',
-    }
-    return <div className={`w-3 h-3 rounded-full ${colors[status as keyof typeof colors]}`} />
-  }
+  // const StatusIndicator = ({ status }: { status: string }) => {
+  //   const colors = {
+  //     online: 'bg-green-500',
+  //     away: 'bg-yellow-500',
+  //     busy: 'bg-red-500',
+  //     offline: 'bg-gray-500',
+  //   }
+  //   return <div className={`w-3 h-3 rounded-full ${colors[status as keyof typeof colors]}`} />
+  // }
 
-  const UserCard = ({ user }: { user: any }) => (
+  const UserCard = ({ user }: { user: typeof nearbyUsers[0] }) => (
     <Card className="mb-4 hover:shadow-lg transition-shadow">
       <CardContent className="p-4">
         <div className="flex items-start space-x-3">

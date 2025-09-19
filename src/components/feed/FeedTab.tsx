@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/lib/hooks'
 import { setFeedFilters } from '@/lib/slices/uiSlice'
-import { setFeedPosts, addFeedPost } from '@/lib/slices/chatSlice'
+// import { setFeedPosts, addFeedPost } from '@/lib/slices/chatSlice'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Rss, Search, Filter, Heart, MessageCircle, Share, ChevronDown } from 'lucide-react'
+import type { FeedPost } from '@/lib/slices/chatSlice'
 
 export const FeedTab = () => {
   const dispatch = useAppDispatch()
@@ -20,33 +21,33 @@ export const FeedTab = () => {
   // Mock feed data
   React.useEffect(() => {
     if (feedPosts.length === 0) {
-      const mockPosts = [
-        {
-          id: '1',
-          authorId: '1',
-          authorName: 'Alice Wonder',
-          authorAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice',
-          content: 'Just finished an amazing project! The team collaboration was incredible. 🚀',
-          likes: ['2', '3'],
-          comments: [
-            { id: '1', authorId: '2', content: 'Congratulations! 🎉', timestamp: new Date() }
-          ],
-          timestamp: new Date(),
-          category: 'Work'
-        },
-        {
-          id: '2',
-          authorId: '2',
-          authorName: 'Bob Builder',
-          authorAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
-          content: 'Beautiful sunset today! Nature never fails to amaze me.',
-          media: [{ type: 'image' as const, url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500' }],
-          likes: ['1', '3', '4'],
-          comments: [],
-          timestamp: new Date(Date.now() - 3600000),
-          category: 'Nature'
-        }
-      ]
+      // const mockPosts = [
+      //   {
+      //     id: '1',
+      //     authorId: '1',
+      //     authorName: 'Alice Wonder',
+      //     authorAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alice',
+      //     content: 'Just finished an amazing project! The team collaboration was incredible. 🚀',
+      //     likes: ['2', '3'],
+      //     comments: [
+      //       { id: '1', authorId: '2', content: 'Congratulations! 🎉', timestamp: new Date() }
+      //     ],
+      //     timestamp: new Date(),
+      //     category: 'Work'
+      //   },
+      //   {
+      //     id: '2',
+      //     authorId: '2',
+      //     authorName: 'Bob Builder',
+      //     authorAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bob',
+      //     content: 'Beautiful sunset today! Nature never fails to amaze me.',
+      //     media: [{ type: 'image' as const, url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500' }],
+      //     likes: ['1', '3', '4'],
+      //     comments: [],
+      //     timestamp: new Date(Date.now() - 3600000),
+      //     category: 'Nature'
+      //   }
+      // ]
       // dispatch(setFeedPosts(mockPosts))
     }
   }, [feedPosts.length])
@@ -56,9 +57,9 @@ export const FeedTab = () => {
 
   const filteredPosts = feedPosts.filter(post => {
     const matchesSearch = post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         post.authorName.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = feedFilters.category === 'all' || 
-                           post.category.toLowerCase() === feedFilters.category.toLowerCase()
+      post.authorName.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = feedFilters.category === 'all' ||
+      post.category.toLowerCase() === feedFilters.category.toLowerCase()
     return matchesSearch && matchesCategory
   })
 
@@ -148,7 +149,11 @@ export const FeedTab = () => {
   )
 }
 
-const FeedPost = ({ post }: { post: any }) => {
+const FeedPost = ({ post }: {
+  post: FeedPost
+
+  
+}) => {
   const [liked, setLiked] = useState(false)
 
   return (
@@ -172,10 +177,10 @@ const FeedPost = ({ post }: { post: any }) => {
       </CardHeader>
       <CardContent className="space-y-4">
         <p>{post.content}</p>
-        
+
         {post.media && post.media.length > 0 && (
           <div className="space-y-2">
-            {post.media.map((item: any, index: number) => (
+            {post.media.map((item, index: number) => (
               <img
                 key={index}
                 src={item.url}
