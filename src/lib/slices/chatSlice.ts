@@ -149,7 +149,7 @@ const chatSlice = createSlice({
       state.conversations.push(action.payload);
     },
     setConversations: (state, action: PayloadAction<conversation[]>) => {
-      state.conversations.push(...action.payload);
+      state.conversations = action.payload;
     },
     addOnlineConvos: (state, action: PayloadAction<string[]>) => {
       state.onlineConvoIds.push(...action.payload);

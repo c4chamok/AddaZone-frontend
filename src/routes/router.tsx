@@ -1,15 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import NotFound from "@/pages/NotFound";
 import { LoginPage } from "@/components/auth/LoginPage";
-import { ChatApp } from "@/components/ChatApp";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { useEffect, useState } from "react";
 import useAuth from "@/hooks/useAuth";
 import axios from "axios";
+import InternalRouting from "./InternalRouting";
 
 const Router = () => {
     const { fetchUser } = useAuth()
     const [isServerOk, setIsServerOk] = useState(false);
+    
 
     const serverTest = async () => {
         let i = 0;
@@ -36,7 +37,7 @@ const Router = () => {
 
         console.error('Server did not respond correctly after 5 attempts');
         setIsServerOk(false);
-        return false; // ❌ Failed after 5 attempts
+        return false; // Failed after 5 attempts
     };
 
 
@@ -53,8 +54,10 @@ const Router = () => {
         <BrowserRouter>
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<AuthProvider><ChatApp /></AuthProvider>} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="/" element={
+                    <AuthProvider>
+                        <InternalRouting/>
+                    </AuthProvider>} />
                 <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>

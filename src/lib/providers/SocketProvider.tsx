@@ -18,6 +18,7 @@ const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         if (isAuthenticated) {
+            console.log("connecting");
             socket.connect();
         }
 
