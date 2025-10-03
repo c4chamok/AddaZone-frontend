@@ -17,10 +17,7 @@ const useAuth = () => {
 
         try {
             const { data } = await axiosSecure.post('/auth/signin', { email, password });
-            console.log(data);
-            if (data?.success) {
-                console.log(data);
-                
+            if (data?.success) {           
                 toast.success('successfully Signed In')
                 await fetchUser();
             }
@@ -42,7 +39,6 @@ const useAuth = () => {
         try {
             // await axios.get('http://localhost:3000/log-cookies', { withCredentials: true });
             const { data } = await axiosSecure.get('/users/me') as { data: { success: boolean, user: User } };
-            console.log('calling');
             if (data?.success) {
                 console.log(data);
                 dispatch(setUser(data.user))
@@ -60,7 +56,6 @@ const useAuth = () => {
 
     const userLogout = async () => {
         const { data } = await axiosSecure.get('auth/signout');
-        console.log(data);
         if (data?.success) {
             dispatch(logout());
             toast.success('Luccessfully Logout')

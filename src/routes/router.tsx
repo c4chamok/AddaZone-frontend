@@ -8,9 +8,8 @@ import axios from "axios";
 import InternalRouting from "./InternalRouting";
 
 const Router = () => {
-    const { fetchUser } = useAuth()
+    const { fetchUser } = useAuth();
     const [isServerOk, setIsServerOk] = useState(false);
-    
 
     const serverTest = async () => {
         let i = 0;
@@ -47,7 +46,7 @@ const Router = () => {
     }, [isServerOk]);
 
     useEffect(() => {
-        fetchUser()
+        fetchUser();
     }, [fetchUser])
 
     return (

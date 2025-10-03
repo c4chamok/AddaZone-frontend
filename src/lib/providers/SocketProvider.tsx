@@ -3,7 +3,7 @@ import { SocketContext, useSocket } from "../socket";
 import { useAppSelector } from "../hooks";
 import { useDispatch } from "react-redux";
 import useAxiosInstance from "@/hooks/axiosHooks";
-import { addConversation, addMessage, addOnlineConvos, removeOnlineConvos, setTypingUsers, type conversation, type Message } from "../slices/chatSlice";
+import { addConversation, addMessage, addOnlineConvos, participantSeen, removeOnlineConvos, setTypingUsers, type conversation, type IChatParticipant, type Message } from "../slices/chatSlice";
 
 
 
@@ -14,11 +14,9 @@ const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const socket = useSocket();
     const dispatch = useDispatch()
     const typingTimeoutsRef = useRef<Record<string, NodeJS.Timeout>>({});
-    // console.log(onlineConvoIds);
 
     useEffect(() => {
-        if (isAuthenticated) {
-            console.log("connecting");
+        if (isAuthenticated && socket) {
             socket.connect();
         }
 
@@ -34,11 +32,16 @@ const SocketProvider = ({ children }: { children: React.ReactNode }) => {
             const existedConversation = conversations.find(convo => convo.id === res.chatId);
             if (!existedConversation) {
                 const { data } = (await axiosSecure.get(`chat/${res.chatId}`)) as { data: { chatInstance: conversation } };
-                dispatch(addConversation(data.chatInstance))
+                dispatch(addConversation(data.chatInstance));
                 return;
             }
-            dispatch(addMessage(res))
+            dispatch(addMessage(res));
         }
+
+        const messageSeenHandler = async (res: IChatParticipant) => {
+            dispatch(participantSeen({userId: res.userId, chatId: res.chatId}));
+        }
+
         const setOnlineConvosFn = (data: { onlineConvoIds: string[] }) => {
             console.log(data);
             dispatch(addOnlineConvos(data.onlineConvoIds));
@@ -66,12 +69,14 @@ const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         if (!socket) return;
 
         socket.on('message-receive', messageHandler);
+        socket.on('message-seen', messageSeenHandler);
         socket.on('online-friends', setOnlineConvosFn);
         socket.on('offline-friends', setOfflineConvosFn);
         socket.on('user-typing', userTyping);
 
         return () => {
             socket.off('message-receive', messageHandler);
+            socket.off('message-seen', messageSeenHandler);
             socket.off('online-friends', setOnlineConvosFn);
             socket.off('offline-friends', setOfflineConvosFn);
             socket.off('user-typing', userTyping);

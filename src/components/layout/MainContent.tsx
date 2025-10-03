@@ -10,13 +10,14 @@ import ChatWindow from '../ChatPage/ChatWindow'
 export const MainContent = () => {
   const { groups, activeDMId, activeGroupId, conversations } = useAppSelector(state => state.chat)
   const { activeView } = useAppSelector(state => state.ui)
+  const { user } = useAppSelector(state => state.auth)
 
   const conversation = conversations.find(convo => convo.id == activeDMId);
 
   const getActiveContent = () => {
     if (activeDMId) {
-      const friend = conversation?.participants[0].user
-      if (!friend) return null
+      const friend = conversation?.participants.find(p => p.id !== user?.id);
+      if (!friend) return null;
       return (<ChatWindow/>)
     }
 

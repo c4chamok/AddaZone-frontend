@@ -2,7 +2,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 export interface Message {
-  id?: string
+  id: string
   content: string
   chatId: string
   senderId: string
@@ -12,6 +12,14 @@ export interface Message {
   // reactions?: { emoji: string; users: string[] }[]
   // edited?: boolean
   // replyTo?: string
+}
+
+export interface ISeenMessage {
+  userId: string;
+  chatId: string;
+  messageId: string;
+  seenAt: Date | null;
+  isSeen: boolean;
 }
 
 export interface Channel {
@@ -44,7 +52,7 @@ export interface conversation {
   status?: 'online' | 'offline' | 'away' | 'busy'
 }
 
-interface IChatParticipant {
+export interface IChatParticipant {
   id: string
   chatId: string
   userId: string
@@ -93,6 +101,7 @@ export interface FeedPost {
 interface ChatState {
   servers: Server[]
   conversations: conversation[]
+  seenMessages: ISeenMessage[]
   onlineConvoIds: string[]
   // typingUserIds: string[]
   friends: Friend[]
@@ -114,6 +123,7 @@ interface ChatState {
 const initialState: ChatState = {
   servers: [],
   conversations: [],
+  seenMessages: [],
   onlineConvoIds: [],
   friends: [],
   groups: [],
@@ -139,9 +149,16 @@ const chatSlice = createSlice({
       state.servers = action.payload
     },
     addMessage: (state, action: PayloadAction<Message>) => {
-      const { content, id, chatId } = action.payload
+      const { content, id, chatId, senderId } = action.payload;
       const convo = state.conversations.find(convo => convo.id === chatId);
-      convo?.messages.push({ id, content, chatId, senderId: action.payload.senderId });
+      convo?.messages.push({ id, content, chatId, senderId });
+      convo?.participants.forEach((p)=>{
+        const newSeenStat = { chatId, messageId: id, seenAt: new Date(), isSeen: false, userId: p.userId };
+        if (p.userId === senderId) {
+          newSeenStat.isSeen = true;
+        }
+        state.seenMessages.push(newSeenStat);
+      })
     },
     addConversation: (state, action: PayloadAction<conversation>) => {
       const existingConv = state.conversations.find(convo => convo.id === action.payload.id);
@@ -156,6 +173,20 @@ const chatSlice = createSlice({
     },
     removeOnlineConvos: (state, action: PayloadAction<string[]>) => {
       state.onlineConvoIds = state.onlineConvoIds.filter(id => !action.payload.includes(id));
+    },
+    setSeenMessages: (state, action: PayloadAction<ISeenMessage[]>) => {
+      state.seenMessages = action.payload;
+    },
+    addSeenMessages: (state, action: PayloadAction<ISeenMessage>) => {
+      state.seenMessages.push(action.payload);
+    },
+    participantSeen: (state, action: PayloadAction<{ userId: string, chatId: string }>) => {
+      state.seenMessages = state.seenMessages.map((sm) =>{
+          if (sm.userId === action.payload.userId && sm.chatId === action.payload.chatId) {
+            return { ...sm, isSeen: true };
+          }
+          return sm;
+      });
     },
     setTypingUsers: (state, action: PayloadAction<{ chatId: string; users: string[] }>) => {
       state.typingUsers[action.payload.chatId] = action.payload.users;
@@ -212,6 +243,9 @@ export const {
   removeOnlineConvos,
   setActiveChannel,
   setActiveDM,
+  participantSeen,
+  addSeenMessages,
+  setSeenMessages,
   setTypingUsers,
   setNearbyUsers,
   setFriends,

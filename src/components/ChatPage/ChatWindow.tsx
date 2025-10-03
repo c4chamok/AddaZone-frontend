@@ -19,47 +19,59 @@ import { cn } from '@/lib/utils';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
 import { useAppSelector } from '@/lib/hooks';
-import { addMessage } from '@/lib/slices/chatSlice';
+import { addMessage, participantSeen } from '@/lib/slices/chatSlice';
 import useAxiosInstance from '@/hooks/axiosHooks';
 import { useSocket } from '@/lib/socket';
 
 const ChatWindow = () => {
   const dispatch = useDispatch();
-  const { conversations, activeDMId, onlineConvoIds, typingUsers } = useAppSelector(state => state.chat);
+  const { conversations, activeDMId, onlineConvoIds, typingUsers, seenMessages } = useAppSelector(state => state.chat);
   const { user } = useAppSelector(state => state.auth);
   const { axiosSecure } = useAxiosInstance();
   const { theme } = useAppSelector(state => state.ui);
   const isDark = theme === 'dark';
   const [message, setMessage] = useState('');
-  // const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatSocket  = useSocket();
 
   const currentChat = conversations.find(c => c.id === activeDMId);
   const otherUser = currentChat?.participants.find(p => p.id !== user?.id);
-  // console.log(conversations[]);
-
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+  console.log(seenMessages);
 
   useEffect(() => {
     scrollToBottom();
-  }, [currentChat?.messages]);
+    if (!user || !currentChat) return;
+
+    const MessageSeen = async () => {
+      const { data } = await axiosSecure.post('chat/message-seen', { chatId: currentChat?.id });
+      console.log(data);
+    }
+
+    MessageSeen();
+
+    dispatch(participantSeen({userId: user?.id, chatId: currentChat?.id}));
+
+  }, [currentChat, axiosSecure, user, dispatch]);
 
   if (!user || !currentChat) return null;
-  console.log(currentChat.participants, user)
 
   const handleSendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const { data } = (await axiosSecure.post('chat/send-message', { toUserId: currentChat?.participants[0].userId, message: message, chatId: currentChat?.id })) as {
+    const { data } = (await axiosSecure.post('chat/send-message', { 
+      toUserId: currentChat?.participants[0].userId, 
+      message: message, 
+      chatId: currentChat?.id 
+    })) as {
       data: {
-        success: boolean; chatId: string, id: string, content: string
+        success: boolean; message: string; msgId: string;
       }
     };
     console.log(data);
-    dispatch(addMessage({ chatId: currentChat?.id, content: message, senderId: user?.id }));
+    dispatch(addMessage({ chatId: currentChat?.id, content: message, senderId: user?.id, id: data.msgId }));
     setMessage('');
     // handleStopTyping();
   }
@@ -73,12 +85,6 @@ const ChatWindow = () => {
 
   };
 
-  // const handleKeyPress = (e: React.KeyboardEvent) => {
-  //   if (e.key === 'Enter' && !e.shiftKey) {
-  //     e.preventDefault();
-  //     handleSendMessage(e);
-  //   }
-  // };
 
   if (!currentChat || !otherUser) {
     return (
@@ -189,7 +195,6 @@ const ChatWindow = () => {
       <ScrollArea className="flex-1 p-4 overflow-y-auto">
         <div className="space-y-4">
           {currentChat.messages.map((msg, index) => {
-            console.log(msg.senderId, user.id);
             return (
               <MessageBubble
                 key={msg.id}
